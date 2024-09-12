@@ -59,7 +59,7 @@ const approveApplication = async (req, res) => {
       date.setDate(date.getDate() + 1)
     ) {
       const checkInDate = new Date(date);
-      checkInDate.setHours(20, 0, 0, 0);
+      checkInDate.setHours(30, 0, 0, 0);
       attendances.push(
         await Attendance.create({
           user: applicant,
