@@ -28,7 +28,7 @@ const attendanceSchema = new Schema(
 attendanceSchema.pre("save", async function (next) {
   if (this.status === "leave") return next();
   if (!this.isModified("checkIn")) return next();
-  console.log("AFter is Modified");
+
   const attendance = this;
   const time = await Time.findOne();
   const checkedInTime = moment(attendance.checkIn).format("HH:mm");
