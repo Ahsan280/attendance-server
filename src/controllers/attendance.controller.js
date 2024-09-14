@@ -8,7 +8,7 @@ import {
 
 const checkIn = async (req, res) => {
   try {
-    const { date } = req.body;
+    const { date, timezone } = req.body;
     const userId = req.user._id;
     if (!date) {
       return res.status(400).json({ error: "Date is required" });
@@ -18,7 +18,13 @@ const checkIn = async (req, res) => {
         .status(400)
         .json({ error: "You have already checked in today" });
     }
-    const attendance = await Attendance.create({ user: userId, checkIn: date });
+    // const attendance = await Attendance.create({ user: userId, checkIn: date });
+    const attendance = await Attendance.create({
+      user: userId,
+      checkIn: date,
+      _timezone: timezone,
+    });
+
     if (!attendance) {
       return res
         .status(500)
