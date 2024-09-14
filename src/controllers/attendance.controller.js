@@ -9,6 +9,7 @@ import {
 const checkIn = async (req, res) => {
   try {
     const { date, timezone } = req.body;
+    console.log("TimeZone Controller", timezone);
     const userId = req.user._id;
     if (!date) {
       return res.status(400).json({ error: "Date is required" });

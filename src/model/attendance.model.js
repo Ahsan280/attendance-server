@@ -34,6 +34,7 @@ attendanceSchema.pre("save", async function (next) {
 
   const attendance = this;
   const time = await Time.findOne();
+  console.log("Timezone Model", attendance.timezone);
   const userTimeZone = attendance.timezone || "UTC";
 
   // const checkedInTime = moment(attendance.checkIn).format("HH:mm");
