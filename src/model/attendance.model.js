@@ -32,6 +32,7 @@ attendanceSchema.pre("save", async function (next) {
   const attendance = this;
   const time = await Time.findOne();
   const checkedInTime = moment(attendance.checkIn).format("HH:mm");
+  console.log(checkedInTime);
   const requiredCheckInTime = moment
     .utc(time.requiredCheckInTime, "HH:mm")
     .format("HH:mm");
