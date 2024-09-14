@@ -1,5 +1,5 @@
 import mongoose, { Schema } from "mongoose";
-import moment from "moment";
+import moment from "moment-timezone";
 import { Time } from "./time.model.js";
 const attendanceSchema = new Schema(
   {
