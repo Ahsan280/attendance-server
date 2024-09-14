@@ -22,7 +22,7 @@ const checkIn = async (req, res) => {
     const attendance = await Attendance.create({
       user: userId,
       checkIn: date,
-      _timezone: timezone,
+      timezone: timezone,
     });
 
     if (!attendance) {

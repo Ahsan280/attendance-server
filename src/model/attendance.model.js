@@ -11,6 +11,9 @@ const attendanceSchema = new Schema(
     checkIn: {
       type: Date,
     },
+    timezone: {
+      type: String,
+    },
     status: {
       type: String,
       enum: ["present", "absent", "late", "leave"],
@@ -31,7 +34,7 @@ attendanceSchema.pre("save", async function (next) {
 
   const attendance = this;
   const time = await Time.findOne();
-  const userTimeZone = attendance._timezone || "UTC";
+  const userTimeZone = attendance.timezone || "UTC";
 
   // const checkedInTime = moment(attendance.checkIn).format("HH:mm");
   console.log(attendance.checkIn, userTimeZone);
