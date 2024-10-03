@@ -22,7 +22,7 @@ const registerUserMySql = async (req, res) => {
       email,
       phoneNumber,
       password,
-      isManager: true,
+      isManager: false,
     });
     const createdUser = await User.findByPk(user.id, {
       attributes: { exclude: ["password", "refreshToken"] },

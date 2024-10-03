@@ -51,23 +51,23 @@ app.get("/", (req, res) => {
 });
 
 // Keep-alive ping code
-// const url = process.env.PRODUCTION_URL;
-// const interval = 60000; // Ping every 60 seconds
+const url = process.env.PRODUCTION_URL;
+const interval = 60000; // Ping every 60 seconds
 
-// function keepAlive() {
-//   axios
-//     .get(url)
-//     .then((response) => {
-//       console.log(
-//         `Pinged at ${new Date().toISOString()}: Status Code ${response.status}`
-//       );
-//     })
-//     .catch((error) => {
-//       console.error(
-//         `Error pinging at ${new Date().toISOString()}:`,
-//         error.message
-//       );
-//     });
-// }
+function keepAlive() {
+  axios
+    .get(url)
+    .then((response) => {
+      console.log(
+        `Pinged at ${new Date().toISOString()}: Status Code ${response.status}`
+      );
+    })
+    .catch((error) => {
+      console.error(
+        `Error pinging at ${new Date().toISOString()}:`,
+        error.message
+      );
+    });
+}
 
-// setInterval(keepAlive, interval);
+setInterval(keepAlive, interval);
