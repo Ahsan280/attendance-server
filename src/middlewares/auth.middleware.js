@@ -1,13 +1,11 @@
 import jwt from "jsonwebtoken";
-// import { User } from "../models/user.model.js";
-import { User } from "../model/user.model.js";
+
 import { generateAccessAndRefreshToken } from "../controllers/user.controller.js";
 import { options } from "../constants.js";
+import User from "../model/user.mysql.model.js";
 export const isManager = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user._id).select(
-      "-password -refreshToken"
-    );
+    const user = await User.findByPk(req.user.id);
 
     if (!user || !user.isManager) {
       return res.status(401).json({ message: "Unauthorized Manager Request" });
@@ -21,10 +19,8 @@ export const isManagerOrisOwner = async (req, res, next) => {
   try {
     const { id } = req.body;
 
-    const user = await User.findById(req.user._id).select(
-      "-password -refreshToken"
-    );
-    const isOwner = user._id === id;
+    const user = await User.findByPk(req.user.id);
+    const isOwner = user.id === id;
     if (!isOwner && !user.isManager) {
       return res.status(401).json({ message: "Unauthorized Manager Request" });
     }
@@ -66,9 +62,7 @@ export const isAuthenticated = async (req, res, next) => {
       }
     }
 
-    const user = await User.findById(decodedToken?._id).select(
-      "-password, -refreshToken"
-    );
+    const user = await User.findByPk(decodedToken?._id);
     if (!user) {
       return res.status(401).json({ message: "Invalid access token user" });
     }

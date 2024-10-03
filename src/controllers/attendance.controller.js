@@ -5,6 +5,7 @@ import {
   getStartAndEndOfDay,
   hasCheckedOut,
 } from "../utils/index.js";
+import { validateCheckIn } from "../utils/index.mysql.js";
 
 const checkIn = async (req, res) => {
   try {

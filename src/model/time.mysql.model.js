@@ -18,4 +18,4 @@ Time.init(
   }
 );
 
-export { Time };
+export default Time;

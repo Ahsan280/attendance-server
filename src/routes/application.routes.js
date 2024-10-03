@@ -7,17 +7,23 @@ import {
   disapproveApplication,
   getApplications,
 } from "../controllers/application.controller.js";
+import {
+  approveApplicationMySql,
+  createApplicationMySql,
+  disapproveApplicationMySql,
+  getApplicationsMySql,
+} from "../controllers/application.mysql.controller.js";
 const applicationRouter = Router();
 applicationRouter
   .route("/create-appilcation")
-  .post(isAuthenticated, createApplication);
+  .post(isAuthenticated, createApplicationMySql);
 applicationRouter
   .route("/approve-appilcation")
-  .post(isAuthenticated, isManager, approveApplication);
-  applicationRouter
+  .post(isAuthenticated, isManager, approveApplicationMySql);
+applicationRouter
   .route("/disapprove-appilcation")
-  .post(isAuthenticated, isManager, disapproveApplication);
+  .post(isAuthenticated, isManager, disapproveApplicationMySql);
 applicationRouter
   .route("/get-applications")
-  .get(isAuthenticated, isManager, getApplications);
+  .get(isAuthenticated, isManager, getApplicationsMySql);
 export default applicationRouter;
