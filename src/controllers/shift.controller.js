@@ -36,7 +36,7 @@ const assignShift = async (req, res) => {
 };
 const getShift = async (req, res) => {
   try {
-    const { user } = req.body;
+    const { user } = req.params;
     if (!user) {
       return res.status(400).json({ error: "Missing required fields" });
     }
@@ -50,4 +50,4 @@ const getShift = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
-export { assignShift };
+export { assignShift, getShift };
