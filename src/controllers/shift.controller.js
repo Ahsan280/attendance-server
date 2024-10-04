@@ -8,7 +8,7 @@ const assignShift = async (req, res) => {
       return res.status(400).json({ error: "Missing required fields" });
     }
     const shiftExists = await Shift.findOne({ where: { user: userId } });
-    console.log(shiftType);
+
     if (shiftExists) {
       shiftExists.startTime = startTime;
       shiftExists.endTime = endTime;
@@ -34,5 +34,20 @@ const assignShift = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
-
+const getShift = async (req, res) => {
+  try {
+    const { user } = req.body;
+    if (!user) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+    const shift = await Shift.findOne({ where: { user } });
+    if (!shift) {
+      return res.status(404).json({ message: "Shift not found" });
+    }
+    return res.status(200).json({ shift });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
 export { assignShift };

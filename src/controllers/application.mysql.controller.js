@@ -57,6 +57,7 @@ const createApplicationMySql = async (req, res) => {
 };
 const approveApplicationMySql = async (req, res) => {
   try {
+    console.log("Inside approve application");
     const { applicationId } = req.body;
     const application = await Application.findByPk(applicationId);
 
