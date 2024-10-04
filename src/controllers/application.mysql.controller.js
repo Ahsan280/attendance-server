@@ -59,9 +59,11 @@ const approveApplicationMySql = async (req, res) => {
   try {
     console.log("Inside approve application");
     const { applicationId } = req.body;
+    console.log("Application ID");
     const application = await Application.findByPk(applicationId);
 
     if (!application) {
+      console.log("Application not found");
       return res.status(404).json({ error: "Application not found" });
     }
     const { applicant, fromDate, toDate } = application;
