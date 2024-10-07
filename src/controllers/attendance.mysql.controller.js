@@ -44,6 +44,7 @@ const checkInMySql = async (req, res) => {
           error: `You are not allowed to check in from this location. You are ${distance}m away`,
         });
       }
+
       console.log("TIME......");
       return res.status(400).json({
         error: `You are not allowed to check in at this time. Your shift is from ${shift.startTime} to ${shift.endTime}`,

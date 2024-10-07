@@ -1,17 +1,21 @@
 import { getDistance, isPointWithinRadius } from "geolib";
+import Office from "../model/office.model.js";
 
-export const isWithinRequiredRadius = (
+export const isWithinRequiredRadius = async (
   userLocation,
-  officeLocation = {
-    latitude: 33.60357598866281,
-    longitude: 73.02644145326552,
-  },
+
   radius = 100
 ) => {
-  const distance = getDistance(userLocation, officeLocation);
+  const office = await Office.findOne();
+  if (!office) {
+    throw new Error("Office not found");
+  }
+  const { latitude, longitude } = office;
+
+  const distance = getDistance(userLocation, { latitude, longitude });
   const withinRadius = isPointWithinRadius(
     userLocation,
-    officeLocation,
+    { latitude, longitude },
     radius
   );
   return { distance, withinRadius, radius };

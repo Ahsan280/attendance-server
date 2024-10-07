@@ -39,7 +39,11 @@ export const hasCheckedOutMysql = async (date, userId) => {
   });
   return !!attendance;
 };
-const checkToAllowCheckIn = function (checkedInTime, shift, userLocation) {
+const checkToAllowCheckIn = async function (
+  checkedInTime,
+  shift,
+  userLocation
+) {
   const checkIn = moment(checkedInTime, "HH:mm:ss");
   const start = moment(shift.startTime, "HH:mm:ss");
   const end = moment(shift.endTime, "HH:mm:ss");
@@ -48,10 +52,13 @@ const checkToAllowCheckIn = function (checkedInTime, shift, userLocation) {
     const allowCheckIn = checkIn.isBetween(start, end, null, "[]");
     return { allowCheckIn };
   }
-  const { distance, withinRadius, radius } =
-    isWithinRequiredRadius(userLocation);
+
+  const { distance, withinRadius, radius } = await isWithinRequiredRadius(
+    userLocation
+  );
   const allowCheckIn =
     withinRadius && checkIn.isBetween(start, end, null, "[]");
+
   return { allowCheckIn, distance, radius };
 };
 export const validateCheckIn = async (
@@ -61,13 +68,13 @@ export const validateCheckIn = async (
   userLocation
 ) => {
   const shift = await Shift.findOne({ where: { user: userId } });
-  console.log(shift.shiftType);
+
   if (!shift) return true;
   const userTimeZone = timezone || "UTC";
 
   const checkedInTime = moment(checkIn).tz(userTimeZone).format("HH:mm");
 
-  const { allowCheckIn, distance } = checkToAllowCheckIn(
+  const { allowCheckIn, distance } = await checkToAllowCheckIn(
     checkedInTime,
     shift,
     userLocation
