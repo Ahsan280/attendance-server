@@ -11,7 +11,7 @@ const registerUserMySql = async (req, res) => {
     if (!fullName || !email || !password || !phoneNumber) {
       return res.status(400).json({ error: "All fields are required" });
     }
-    const alreadyExists = await User.findOne({ where: { email } });
+    const alreadyExists = await User.findByEmail(email);
     if (alreadyExists) {
       return res
         .status(400)
@@ -24,9 +24,7 @@ const registerUserMySql = async (req, res) => {
       password,
       isManager: false,
     });
-    const createdUser = await User.findByPk(user.id, {
-      attributes: { exclude: ["password", "refreshToken"] },
-    });
+    const createdUser = await User.findById(user);
     if (!createdUser) {
       return res
         .status(500)
@@ -47,7 +45,7 @@ const loginUserMySql = async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({ error: "Email and password are required" });
     }
-    const user = await User.findOne({ where: { email } });
+    const user = await User.findByEmail(email);
     if (!user) {
       return res
         .status(401)
@@ -96,26 +94,20 @@ const updateUserMySql = async (req, res) => {
         error: "Invalid email format. Please use a valid email address.",
       });
     }
-    const [affectedRows] = await User.update(
-      {
-        fullName,
-        email,
-        phoneNumber,
-      },
-      {
-        where: { id },
-      }
+    console.log("Update User Data");
+    const updatedUser = await User.updateUserData(
+      id,
+      fullName,
+      email,
+      phoneNumber
     );
-    if (affectedRows === 0) {
+    if (!updatedUser) {
       return res.status(404).json({ error: "User not found" });
     }
-    const user = await User.findByPk(id, {
-      attributes: { exclude: ["password", "refreshToken"] },
-    });
 
     return res
       .status(200)
-      .json({ updatedUser: user, message: "User updated successfully" });
+      .json({ updatedUser, message: "User updated successfully" });
   } catch (error) {
     console.error(error);
     return res

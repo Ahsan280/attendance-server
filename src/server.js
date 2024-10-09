@@ -8,8 +8,7 @@ import attendanceRouter from "./routes/attendance.routes.js";
 import cookieParser from "cookie-parser";
 import timeRouter from "./routes/time.routes.js";
 import applicationRouter from "./routes/application.routes.js";
-import sequelize from "./db/index.js";
-import "./model/association.js";
+import connection from "./db/index.js";
 import shiftRouter from "./routes/shift.routes.js";
 import officeRouter from "./routes/office.routes.js";
 dotenv.config({
@@ -30,17 +29,17 @@ app.use(express.json({ limit: "16kb" }));
 app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 app.use(express.static("public"));
 app.use(cookieParser());
-sequelize
-  .sync()
-  .then(() => {
+connection.connect((err) => {
+  if (err) {
+    console.error("Unable to connect to the database: " + err.stack);
+    return;
+  } else {
     app.listen(PORT, () => {
-      console.log(`Server is running at port ${PORT}`);
+      console.log("Connected as id " + connection.threadId);
+      console.log(`Server is running on port ${PORT}`);
     });
-  })
-  .catch((error) => {
-    console.error("Unable to connect to the database:", error);
-  });
-
+  }
+});
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/attendance", attendanceRouter);
 app.use("/api/v1/time", timeRouter);

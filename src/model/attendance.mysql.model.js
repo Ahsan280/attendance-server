@@ -1,76 +1,95 @@
-import { DataTypes, Model } from "sequelize";
-import Time from "./time.mysql.model.js";
+import connection from "../db/index.js";
 import moment from "moment-timezone";
-import sequelize from "../db/index.js";
 import Shift from "./shift.mysql.model.js";
 
-class Attendance extends Model {}
+class Attendance {
+  static async create(attendanceData) {
+    const insertQuery = `
+      INSERT INTO attendance 
+      (user, checkIn, checkOut, timezone, status, hoursWorked, latitude, longitude) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `;
 
-Attendance.init(
-  {
-    user: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: "Users",
-        key: "id",
-      },
-    },
-    checkIn: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
-    checkOut: {
-      type: DataTypes.DATE,
-    },
-    timezone: {
-      type: DataTypes.STRING,
-    },
-    status: {
-      type: DataTypes.ENUM("present", "absent", "late", "leave"),
-      defaultValue: "present",
-    },
-    hoursWorked: {
-      type: DataTypes.STRING,
-    },
-    latitude: {
-      type: DataTypes.FLOAT,
-      allowNull: true,
-    },
-    longitude: {
-      type: DataTypes.FLOAT,
-      allowNull: true,
-    },
-  },
-  {
-    sequelize,
-    modelName: "Attendance",
-    timestamps: true,
-    hooks: {
-      beforeSave: async (attendance, options) => {
-        if (attendance.status === "leave") return;
-        if (!attendance.changed("checkIn")) return;
-        const userTimeZone = attendance.timezone || "UTC";
-        const shift = await Shift.findOne({ where: { user: attendance.user } });
-        console.log("Time Zone Before", userTimeZone);
-        const checkedInTime = moment(attendance.checkIn)
-          .tz(userTimeZone)
-          .format("HH:mm");
+    return new Promise((resolve, reject) => {
+      connection.query(
+        insertQuery,
+        [
+          attendanceData.user,
+          attendanceData.checkIn,
+          attendanceData.checkOut || null,
+          attendanceData.timezone || "UTC",
+          attendanceData.status || "present",
+          attendanceData.hoursWorked || null,
+          attendanceData.latitude || null,
+          attendanceData.longitude || null,
+        ],
+        async (err, results) => {
+          if (err) {
+            return reject(err);
+          }
 
-        const startTimePlus30 = moment(shift.startTime, "HH:mm")
-          .add(30, "minutes")
-          .format("HH:mm");
+          const newAttendanceId = results.insertId;
+          // Fetch and return the newly created attendance record
+          const selectQuery = `SELECT * FROM attendance WHERE id = ?`;
+          connection.query(
+            selectQuery,
+            [newAttendanceId],
+            async (err, attendanceResults) => {
+              if (err) return reject(err);
+              if (attendanceResults.length > 0) {
+                const attendance = attendanceResults[0];
+                await Attendance.handleLateStatus(attendance); // Handle late status
+                resolve(attendance);
+              } else {
+                resolve(null);
+              }
+            }
+          );
+        }
+      );
+    });
+  }
 
-        if (
-          moment(checkedInTime, "HH:mm").isAfter(
-            moment(startTimePlus30, "HH:mm")
-          )
-        ) {
+  static async handleLateStatus(attendance) {
+    if (attendance.status === "leave") return;
+
+    const userTimeZone = attendance.timezone || "UTC";
+    const shift = await Shift.findByUser(attendance.user);
+
+    const checkedInTime = moment(attendance.checkIn)
+      .tz(userTimeZone)
+      .format("HH:mm");
+
+    const startTimePlus30 = moment(shift.startTime, "HH:mm")
+      .add(30, "minutes")
+      .format("HH:mm");
+
+    if (
+      moment(checkedInTime, "HH:mm").isAfter(moment(startTimePlus30, "HH:mm"))
+    ) {
+      // Update status to "late" if the user checks in late
+      const updateQuery = `UPDATE attendance SET status = ? WHERE id = ?`;
+      connection.query(updateQuery, ["late", attendance.id], (err) => {
+        if (err) {
+          console.error("Error updating attendance status to 'late':", err);
+        } else {
           attendance.status = "late";
         }
-      },
-    },
+      });
+    }
   }
-);
+
+  static findByUser(userId) {
+    const selectQuery = `SELECT * FROM attendance WHERE user = ?`;
+    return new Promise((resolve, reject) => {
+      connection.query(selectQuery, [userId], (err, results) => {
+        if (err) {
+          return reject(err);
+        }
+        resolve(results);
+      });
+    });
+  }
+}
 
 export default Attendance;

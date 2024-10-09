@@ -19,7 +19,7 @@ export const isManagerOrisOwner = async (req, res, next) => {
   try {
     const { id } = req.body;
 
-    const user = await User.findByPk(req.user.id);
+    const user = await User.findById(req.user.id);
     const isOwner = user.id === id;
     if (!isOwner && !user.isManager) {
       return res.status(401).json({ message: "Unauthorized Manager Request" });
@@ -62,7 +62,7 @@ export const isAuthenticated = async (req, res, next) => {
       }
     }
 
-    const user = await User.findByPk(decodedToken?._id);
+    const user = await User.findById(decodedToken?._id);
     if (!user) {
       return res.status(401).json({ message: "Invalid access token user" });
     }

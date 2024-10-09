@@ -13,12 +13,4 @@ const connection = mysql.createConnection({
   port: process.env.DATABASE_PORT,
 });
 
-connection.connect((err) => {
-  if (err) {
-    console.error("Error connecting: " + err.stack);
-    return;
-  }
-  console.log("Connected as id " + connection.threadId);
-});
-
 export default connection;

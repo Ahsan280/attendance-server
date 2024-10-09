@@ -1,4 +1,4 @@
-import { Application } from "../model/application.model.js";
+// import { Application } from "../model/application.model.js";
 import { Attendance } from "../model/attendance.model.js";
 const createApplication = async (req, res) => {
   try {
